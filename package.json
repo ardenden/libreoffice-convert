@@ -18,7 +18,8 @@
   "contributors": [
     "René Rössler <rene@freshx.de>",
     "Dmitrii Kosinov <dnk@kakveselo.ru>",
-    "Brian Chong <bgorhoball@protonmail.com>"
+    "Brian Chong <bgorhoball@protonmail.com>",
+    "Ilko Hoffmann <ilkohoffmann@posteo.net>"
   ],
   "license": "MIT",
   "dependencies": {
@@ -26,12 +27,20 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "jest": "^24.7.1"
+    "@types/jest": "^26.0.15",
+    "@types/node": "^14.14.7",
+    "@types/tmp": "^0.2.0",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
+    "eslint": "^7.13.0",
+    "jest": "^24.7.1",
+    "typescript": "^4.0.5"
   },
   "engines": {
     "node": ">=6"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "watch": "npx tsc -w"
   }
 }
