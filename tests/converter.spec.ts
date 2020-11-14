@@ -20,7 +20,7 @@ describe('Converter', () => {
             format: format,
             inputPath: inputPath,
             outputPath: outputPath,
-            filter: undefined,
+            filter: undefined
         }
         const supportedPlatforms = ['darwin', 'linux', 'win32'];
         if (supportedPlatforms.includes(process.platform)) {
