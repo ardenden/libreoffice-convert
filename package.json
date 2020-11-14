@@ -23,7 +23,6 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "async": "^2.6.2",
     "tmp": "^0.2.1"
   },
   "devDependencies": {
@@ -33,7 +32,9 @@
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
     "eslint": "^7.13.0",
-    "jest": "^24.7.1",
+    "jest": ">=26.0.0 <27.0.0-0",
+    "npx": "^10.2.2",
+    "ts-jest": "^26.4.4",
     "typescript": "^4.0.5"
   },
   "engines": {
@@ -41,6 +42,8 @@
   },
   "scripts": {
     "test": "jest",
-    "watch": "npx tsc -w"
+    "watch": "npm run copy-files && npx tsc -w",
+    "build": "npx tsc && npm run copy-files",
+    "copy-files": "cp -R ./tests/resources ./dist/tests"
   }
 }

@@ -4,3 +4,4 @@ yarn-error.log
 /resources
 .vscode/
 /dist
+/tests/resources/*.pdf
