@@ -103,7 +103,13 @@ export class Converter {
 
     private static async convert(installDir: DirResult, tempDir: DirResult, options: ConvertOptions, fileExtension: string, binaryPath: string) {
         try {
-            let command = `-env:UserInstallation=file://${installDir.name} --headless`;
+            let fileURI: string;
+            if (process.platform === 'win32') {
+                fileURI = `file:///${installDir.name}`;
+            } else {
+                fileURI = `file://${installDir.name}`;
+            }
+            let command = `-env:UserInstallation=${fileURI} --headless`;
             command += ` --convert-to ${options.format} ${tempDir.name}/source.${fileExtension}`;
             command += ` --outdir ${tempDir.name}`;
             if (options.filter !== undefined) {
@@ -111,7 +117,6 @@ export class Converter {
             }
             const args = command.split(' ');
             const execFilePromise = util.promisify(execFile);
-            // await execFilePromise(binaryPath, args); 
             const { stdout, stderr } = await execFilePromise(binaryPath, args); 
             if (options.debug) {
                 console.log('\n------------- DEBUG SOFFICE BINARY -------------------');
