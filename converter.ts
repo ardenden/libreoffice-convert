@@ -15,14 +15,13 @@ export interface ConvertOptions {
 export class Converter {
     static async convertWithOptions(options: ConvertOptions): Promise<string> {
         try {
-            console.log('\nStarted to convert file. This may take a while.');
             const tempDir = dirSync({ prefix: 'libreofficeConvert_', unsafeCleanup: true });
             const installDir = dirSync({ prefix: 'soffice', unsafeCleanup: true });
-            const binaryPath = this.getBinaryPath(options);
+            const binaryPath = this.getBinaryPath();
             const fileExtension = this.getFileExtension(options.inputPath);
-            this.copyFile(options.inputPath, `${tempDir.name}/source.${fileExtension}`, options);
-            await this.convert(installDir, tempDir, options, fileExtension , binaryPath);
-            this.copyFile(`${tempDir.name}/source.${options.format}`, options.outputPath, options);
+            this.copyFile(options.inputPath, `${tempDir.name}/source.${fileExtension}`);
+            await this.convert(installDir, tempDir, options, fileExtension, binaryPath);
+            this.copyFile(`${tempDir.name}/source.${options.format}`, options.outputPath);
             this.manualCleanup([tempDir, installDir]);
             return options.outputPath;
         } catch (error) {
@@ -46,11 +45,11 @@ export class Converter {
             if (!fileExtension) throw new Error();
             return fileExtension;
         } catch (error) {
-            throw new Error ('File has no valid extension');
+            throw new Error('File has no valid extension');
         }
     }
 
-    private static getBinaryPath(options: ConvertOptions): string {
+    private static getBinaryPath(): string {
         try {
             let binaryPaths: string[] = [];
             let binaryPath: string | undefined = undefined;
@@ -60,18 +59,23 @@ export class Converter {
                 case 'linux': binaryPaths = ['/usr/bin/libreoffice', '/usr/bin/soffice'];
                     break;
                 case 'win32': binaryPaths = [
-                    path.join(process.env['PROGRAMFILES(X86)'] !== undefined ? process.env['PROGRAMFILES(X86)'] : '', 'LIBREO~1/program/soffice.exe'),
-                    path.join(process.env['PROGRAMFILES(X86)'] !== undefined ? process.env['PROGRAMFILES(X86)'] : '', 'LibreOffice/program/soffice.exe'),
-                    path.join(process.env.PROGRAMFILES !== undefined ? process.env.PROGRAMFILES : '', 'LibreOffice/program/soffice.exe'),
+                    path.join(
+                        process.env['PROGRAMFILES(X86)'] !== undefined ? process.env['PROGRAMFILES(X86)'] : '',
+                        'LIBREO~1/program/soffice.exe'
+                    ),
+                    path.join(
+                        process.env['PROGRAMFILES(X86)'] !== undefined ? process.env['PROGRAMFILES(X86)'] : '',
+                        'LibreOffice/program/soffice.exe'
+                    ),
+                    path.join(
+                        process.env.PROGRAMFILES !== undefined ? process.env.PROGRAMFILES : '',
+                        'LibreOffice/program/soffice.exe'
+                    ),
                 ];
             }
             // check validity of path
             for (const path of binaryPaths) {
                 if (fs.existsSync(path)) {
-                    if (options.debug) {
-                        console.log('\n------------------------------------------------------');
-                        console.log('Binary found at: ' + path);
-                    }
                     binaryPath = path;
                 }
             }
@@ -85,23 +89,24 @@ export class Converter {
         }
     }
 
-    private static copyFile(fromPath: string, toPath: string, options: ConvertOptions) {
+    private static copyFile(fromPath: string, toPath: string) {
         try {
             if (fs.existsSync(fromPath)) {
-                if (options.debug) {
-                    console.log('Copy file from: ' + fromPath);
-                    console.log('Copy file to: ' + toPath);
-                }
                 fs.copyFileSync(fromPath, toPath);
             } else {
-                throw new Error('Something went wrong - please double check the paths.')
+                throw new Error('Something went wrong - please double check the paths.');
             }
         } catch (error) {
             throw new Error(error);
         }
     }
 
-    private static async convert(installDir: DirResult, tempDir: DirResult, options: ConvertOptions, fileExtension: string, binaryPath: string) {
+    private static async convert(
+        installDir: DirResult,
+        tempDir: DirResult,
+        options: ConvertOptions,
+        fileExtension: string,
+        binaryPath: string) {
         try {
             let fileURI: string;
             if (process.platform === 'win32') {
@@ -117,14 +122,7 @@ export class Converter {
             }
             const args = command.split(' ');
             const execFilePromise = util.promisify(execFile);
-            const { stdout, stderr } = await execFilePromise(binaryPath, args); 
-            if (options.debug) {
-                console.log('\n------------- DEBUG SOFFICE BINARY -------------------');
-                console.log('command: ' + command);
-                console.log('\nstdout:', stdout);
-                console.log('stderr:', stderr);
-                console.log('------------------------------------------------------\n');
-            }
+            await execFilePromise(binaryPath, args);
         } catch (error) {
             throw new Error(error);
         }
